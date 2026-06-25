@@ -1,57 +1,36 @@
-"use client";
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-import { useActionState } from "react";
-import { loginAction } from "./actions";
-import { useState } from "react";
+## Getting Started
 
-export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState(loginAction, null);
-  const [pinInput, setPinInput] = useState("");
+First, run the development server:
 
-  const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/[^0-9]/g, ""); // keep only numbers
-    if (val.length <= 4) {
-      setPinInput(val);
-    }
-  };
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-  return (
-    <main className="container animate-fade-in" style={{ maxWidth: '400px', marginTop: '10vh' }}>
-      <div className="card" style={{ textAlign: "center" }}>
-        <h2>Sign In</h2>
-        <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-          Enter your 4-digit PIN to access Pub Golf.
-        </p>
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-        <form action={formAction}>
-          <input
-            type="password"
-            name="pin"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="••••"
-            value={pinInput}
-            onChange={handlePinChange}
-            style={{ fontSize: "2rem", textAlign: "center", letterSpacing: "10px" }}
-            required
-            autoFocus
-          />
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-          {state?.error && (
-            <div style={{ color: "var(--accent-color)", marginBottom: "1rem", fontWeight: 600 }}>
-              {state.error}
-            </div>
-          )}
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-full" 
-            disabled={isPending || pinInput.length !== 4}
-          >
-            {isPending ? "Signing in..." : "Join Game"}
-          </button>
-        </form>
-      </div>
-    </main>
-  );
-}
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
