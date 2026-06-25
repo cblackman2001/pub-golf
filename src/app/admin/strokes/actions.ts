@@ -9,7 +9,11 @@ export async function submitStrokeAction(formData: FormData) {
   const strokesStr = formData.get("strokes")?.toString();
 
   if (pubId && userId && strokesStr) {
-    const strokes = parseInt(strokesStr, 10);
+    const strokes = Number(strokesStr);
+
+    if (!Number.isInteger(strokes) || strokes < 0) {
+      return;
+    }
     
     await prisma.score.upsert({
       where: {

@@ -6,9 +6,11 @@ export const dynamic = 'force-dynamic';
 export default async function AdminStrokesPage() {
   const pubs = await prisma.pub.findMany({ orderBy: { order: 'asc' } });
   const players = await prisma.user.findMany({ orderBy: { name: 'asc' } });
-  const recentScores = await prisma.score.findMany({
-    take: 20,
-    orderBy: { id: "desc" },
+  const loggedScores = await prisma.score.findMany({
+    orderBy: [
+      { pub: { order: 'asc' } },
+      { user: { name: 'asc' } }
+    ],
     include: { pub: true, user: true }
   });
 
@@ -36,27 +38,38 @@ export default async function AdminStrokesPage() {
             </select>
 
             <label>Strokes (Score)</label>
-            <input type="number" name="strokes" required min={1} placeholder="e.g. 3" />
+            <input type="number" name="strokes" required min={0} placeholder="e.g. 0" />
 
-            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Log Score</button>
+            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Log / Update Score</button>
           </form>
         </section>
 
         {/* LOG HISTORY */}
         <section>
-          <h2 style={{ marginBottom: '1rem' }}>Recent Submissions</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ marginBottom: 0 }}>All Logged Scores</h2>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{loggedScores.length} total</span>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {recentScores.length === 0 && <p className="card">No scores logged.</p>}
-            {recentScores.map(score => (
-              <div key={score.id} className="card" style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            {loggedScores.length === 0 && <p className="card">No scores logged.</p>}
+            {loggedScores.map(score => (
+              <form key={score.id} action={submitStrokeAction} className="card" style={{ padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'end' }}>
+                <input type="hidden" name="pubId" value={score.pubId} />
+                <input type="hidden" name="userId" value={score.userId} />
+                <div style={{ flex: '1 1 150px' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hole {score.pub.order}</div>
+                  <strong>{score.pub.name}</strong>
+                </div>
+                <div style={{ flex: '1 1 120px' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Player</div>
                   <strong>{score.user.name}</strong>
-                  <strong style={{ color: 'var(--accent-color)' }}>{score.strokes} Strokes</strong>
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  Hole {score.pub.order}: {score.pub.name}
+                <div style={{ width: '95px' }}>
+                  <label htmlFor={`strokes-${score.id}`} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Strokes</label>
+                  <input id={`strokes-${score.id}`} type="number" name="strokes" required min={0} defaultValue={score.strokes} style={{ margin: 0, padding: '0.45rem 0.6rem' }} />
                 </div>
-              </div>
+                <button type="submit" className="btn btn-secondary" style={{ padding: '0.45rem 0.8rem', fontSize: '0.85rem' }}>Save</button>
+              </form>
             ))}
           </div>
         </section>
