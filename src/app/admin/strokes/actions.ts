@@ -11,7 +11,7 @@ export async function submitStrokeAction(formData: FormData) {
   if (pubId && userId && strokesStr) {
     const strokes = Number(strokesStr);
 
-    if (!Number.isInteger(strokes) || strokes < 0) {
+    if (!Number.isInteger(strokes)) {
       return;
     }
     
@@ -29,5 +29,22 @@ export async function submitStrokeAction(formData: FormData) {
     revalidatePath("/admin/strokes");
     revalidatePath("/leaderboard");
     revalidatePath(`/pubs/${pubId}`);
+  }
+}
+
+export async function deleteStrokeAction(formData: FormData) {
+  const scoreId = formData.get("scoreId")?.toString();
+  const pubId = formData.get("pubId")?.toString();
+
+  if (scoreId) {
+    await prisma.score.delete({
+      where: { id: scoreId }
+    });
+
+    revalidatePath("/admin/strokes");
+    revalidatePath("/leaderboard");
+    if (pubId) {
+      revalidatePath(`/pubs/${pubId}`);
+    }
   }
 }

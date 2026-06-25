@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { submitStrokeAction } from "./actions";
+import { deleteStrokeAction, submitStrokeAction } from "./actions";
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +38,7 @@ export default async function AdminStrokesPage() {
             </select>
 
             <label>Strokes (Score)</label>
-            <input type="number" name="strokes" required min={0} placeholder="e.g. 0" />
+            <input type="number" name="strokes" required placeholder="e.g. -1" />
 
             <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Log / Update Score</button>
           </form>
@@ -53,9 +53,7 @@ export default async function AdminStrokesPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
             {loggedScores.length === 0 && <p className="card">No scores logged.</p>}
             {loggedScores.map(score => (
-              <form key={score.id} action={submitStrokeAction} className="card" style={{ padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'end' }}>
-                <input type="hidden" name="pubId" value={score.pubId} />
-                <input type="hidden" name="userId" value={score.userId} />
+              <div key={score.id} className="card" style={{ padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'end' }}>
                 <div style={{ flex: '1 1 150px' }}>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hole {score.pub.order}</div>
                   <strong>{score.pub.name}</strong>
@@ -64,12 +62,21 @@ export default async function AdminStrokesPage() {
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Player</div>
                   <strong>{score.user.name}</strong>
                 </div>
-                <div style={{ width: '95px' }}>
-                  <label htmlFor={`strokes-${score.id}`} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Strokes</label>
-                  <input id={`strokes-${score.id}`} type="number" name="strokes" required min={0} defaultValue={score.strokes} style={{ margin: 0, padding: '0.45rem 0.6rem' }} />
-                </div>
-                <button type="submit" className="btn btn-secondary" style={{ padding: '0.45rem 0.8rem', fontSize: '0.85rem' }}>Save</button>
-              </form>
+                <form action={submitStrokeAction} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'end' }}>
+                  <input type="hidden" name="pubId" value={score.pubId} />
+                  <input type="hidden" name="userId" value={score.userId} />
+                  <div style={{ width: '95px' }}>
+                    <label htmlFor={`strokes-${score.id}`} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Strokes</label>
+                    <input id={`strokes-${score.id}`} type="number" name="strokes" required defaultValue={score.strokes} style={{ margin: 0, padding: '0.45rem 0.6rem' }} />
+                  </div>
+                  <button type="submit" className="btn btn-secondary" style={{ padding: '0.45rem 0.8rem', fontSize: '0.85rem' }}>Save</button>
+                </form>
+                <form action={deleteStrokeAction}>
+                  <input type="hidden" name="scoreId" value={score.id} />
+                  <input type="hidden" name="pubId" value={score.pubId} />
+                  <button type="submit" className="btn btn-secondary" style={{ padding: '0.45rem 0.8rem', fontSize: '0.85rem', color: 'var(--accent-color)', borderColor: 'var(--accent-color)' }}>Delete</button>
+                </form>
+              </div>
             ))}
           </div>
         </section>
