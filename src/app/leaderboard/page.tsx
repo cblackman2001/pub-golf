@@ -30,14 +30,26 @@ export default async function LeaderboardPage() {
     holesPlayed: u.scores.length
   })).sort((a, b) => a.totalStrokes - b.totalStrokes); // Ascending order
 
-  const teamStats = teams.map(t => ({
-    id: t.id,
-    name: t.name,
-    totalStrokes: t.users.reduce((teamAcc, user) => 
+  const teamStats = teams.map(t => {
+    const playerCount = t.users.length;
+    const totalStrokes = t.users.reduce((teamAcc, user) =>
       teamAcc + user.scores.reduce((acc, score) => acc + score.strokes, 0)
-    , 0),
-    totalHolesPlayed: t.users.reduce((teamAcc, user) => teamAcc + user.scores.length, 0),
-  })).sort((a, b) => a.totalStrokes - b.totalStrokes); // Ascending order
+    , 0);
+
+    return {
+      id: t.id,
+      name: t.name,
+      playerCount,
+      totalStrokes,
+      averageStrokes: playerCount > 0 ? totalStrokes / playerCount : null,
+      totalHolesPlayed: t.users.reduce((teamAcc, user) => teamAcc + user.scores.length, 0),
+    };
+  }).sort((a, b) => {
+    const aAverage = a.averageStrokes ?? Number.POSITIVE_INFINITY;
+    const bAverage = b.averageStrokes ?? Number.POSITIVE_INFINITY;
+
+    return aAverage - bAverage || a.name.localeCompare(b.name);
+  }); // Ascending order
 
   return (
     <main className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
@@ -96,15 +108,15 @@ export default async function LeaderboardPage() {
                 <div>
                   <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{t.name}</div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Aggregate Holes: {t.totalHolesPlayed}
+                    Players: {t.playerCount} | Aggregate Holes: {t.totalHolesPlayed} | Total: {t.totalStrokes}
                   </div>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--primary-color)', lineHeight: 1 }}>
-                  {t.totalStrokes}
+                  {t.averageStrokes === null ? 'N/A' : t.averageStrokes.toFixed(1)}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Total Strokes</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Avg Strokes</div>
               </div>
             </div>
           ))}
